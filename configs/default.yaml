@@ -1,4 +1,0 @@
-llm:
-  provider: groq
-memory:
-  backend: sqlite
