@@ -1,59 +1,103 @@
-# Friday Project - Context Summary
-Date: 2026-05-10
+# Project Friday — v1 Roadmap
 
-## 1. Goal
-Build a pluggable AI personal companion as a Python package.
-- User provides: persona.yaml + LLM config
-- v0 features: chat with personality, remember facts, web search, set reminder
-- Design for scale from day 1
+Friday is a model-agnostic, memory-first AI companion inspired by Tony Stark's FRIDAY. Built to run locally, swap LLMs in one line, and remember you across restarts.
 
-## 2. Key Decisions Made
-- Language: Python 3.11+ with Poetry
-- LLM routing: LiteLLM adapter (supports OpenAI, Groq, Ollama, Anthropic)
-- Architecture: 4 layers - LLM Adapter, Persona Engine, Memory, Tool Router
-- Token strategy: system prompt <300 tokens, history window 6 turns, memory top 5 facts
-- Packaging: pip installable, core separated from interfaces
+> **Status: v0 complete** — LLM adapter, persona, SQLite memory, and tools (web_search, reminder) are working.
 
-## 3. Artifacts Created So Far
-1. v0 Task Checklist (22 tasks across 7 milestones)
-   - File: v0_tasks.md
-2. Token-efficient docs/ (6 files)
-   - 00-token-principles.md
-   - 01-architecture.md
-   - 02-persona-spec.md
-   - 03-tool-contracts.md
-   - 04-memory-policy.md
-   - 05-dev-checklist.md
-3. Scalable directory scaffold
-   - Full structure with src/ai_companion/, interfaces/, plugins/, infra/
-   - Ready for providers, memory backends, API, CLI, WebSocket
-   - Includes placeholders for future scale (chroma, redis, k8s)
+---
 
-## 4. v0 Scope Locked
-Milestone 0: Setup
-Milestone 1: LLM abstraction
-Milestone 2: Persona system
-Milestone 3: Core agent loop
-Milestone 4: SQLite memory
-Milestone 5: 2 tools (search, reminder)
-Milestone 6: Packaging
-Milestone 7: Validation
+## What v0 proved
 
-Success criteria: pip install -> load persona -> chat -> remember name after restart -> search -> reminder works
+✅ **Swappable LLM** — Gemini 2.0 Flash tested at 79 prompt tokens, Groq/Ollama ready via registry
+✅ **Persona engine** — YAML-driven personality, no hardcoding
+✅ **Persistent memory** — SQLite fact-store, <50 tokens injected per turn
+✅ **Tools** — model-agnostic JSON tool calling (web_search + set_reminder)
+✅ **Token budget** — full turn under 300 tokens
 
-## 5. Directory Structure Highlights
-- src/ai_companion/core/ : Companion orchestrator
-- src/ai_companion/llm/providers/ : one file per model
-- src/ai_companion/memory/backends/ : sqlite (v0), chroma/redis (future)
-- src/ai_companion/tools/builtin/ : search, reminder
-- src/ai_companion/interfaces/ : cli, api, websocket (separate from core)
-- plugins/ : external tools without touching core
-- infra/ : docker and k8s ready
+Tested: `poetry run python examples/basic_chat.py` remembers name and coffee across restarts.
 
-## 6. Next Immediate Steps
-1. Fill core/companion.py and agent/loop.py using docs/01-architecture.md
-2. Implement BaseLLM and LiteLLMAdapter
-3. Create first persona at persona/templates/kavi.yaml
-4. Run token benchmark using scripts/benchmark_tokens.py
+## v1 Goals
 
+v1 turns the prototype into a daily driver. Focus: speed, semantic memory, and real actions.
 
+### 1. Memory v2
+- **Redis backend** — <5ms recall, native TTL for reminders
+- **Semantic recall** — add embeddings column, use cosine search instead of "last 5"
+- **Auto-extraction** — LLM extracts facts from chat, no regex rules
+- **Memory types:** `facts`, `episodic` (summaries), `procedural` (preferences)
+
+### 2. Tools v2
+- **Native function calling** — use Gemini/Groq tool schemas instead of JSON parsing
+- **Background scheduler** — APScheduler to fire reminders
+- **New tools:**
+  - `calendar_check` — read Google Calendar
+  - `send_message` — WhatsApp/Telegram
+  - `long_term_search` — search your own memory
+
+### 3. Voice & Realtime
+- **STT/TTS** — Whisper + Piper for local voice
+- **Streaming responses** — token-by-token output
+- **Wake word** — "Hey Friday"
+
+### 4. Multi-user & Privacy
+- Real user_id isolation
+- Local-first encryption for `data/friday.db`
+- Configurable memory retention
+
+## Architecture (unchanged)
+
+```
+src/
+  core/companion.py      # orchestrator
+  llm/registry.py        # swap models
+  memory/registry.py     # sqlite → redis → vector
+  tools/registry.py      # web_search → 10+ tools
+  persona/loader.py
+```
+
+All layers talk via interfaces, not implementations.
+
+## Getting Started (v0)
+
+```bash
+git clone <repo>
+cd friday
+poetry install
+cp .env.example .env  # add GEMINI_API_KEY
+poetry run python examples/basic_chat.py
+```
+
+## Configuration for v1
+
+`config/default.yaml`:
+```yaml
+llm:
+  provider: gemini
+  model: gemini-2.0-flash
+
+memory:
+  backend: redis  # was sqlite
+  url: redis://localhost:6379/0
+  semantic: true
+
+tools:
+  - web_search
+  - set_reminder
+  - calendar_check
+```
+
+## Roadmap
+
+- [x] v0 — core loop + memory + 2 tools
+- [ ] v1.0 — Redis + semantic memory
+- [ ] v1.1 — background scheduler + voice
+- [ ] v1.2 — mobile app (React Native) + local sync
+- [ ] v2 — multi-agent (Friday delegates to specialist agents)
+
+## Why build this
+
+ChatGPT remembers, but you can't swap the model, own the memory, or run it offline. Friday is the companion you control — local-first, model-agnostic, and built for <300 tokens per turn.
+
+---
+
+Built with: Python 3.11, Poetry, aiosqlite, DuckDuckGo Search. Next: Redis, sentence-transformers, APScheduler.
