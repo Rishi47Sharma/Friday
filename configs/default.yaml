@@ -1,5 +1,7 @@
 llm:
-  provider: gemini
-  model: gemini-2.5-flash
+  provider: github
+  model: Meta-Llama-3.1-8B-Instruct
+
 memory:
   backend: sqlite
+  db_path: data/friday.db

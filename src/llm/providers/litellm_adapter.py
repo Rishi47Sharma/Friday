@@ -8,7 +8,7 @@ class LiteLLMAdapter(BaseLLM):
         self.model_str = f"{provider}/{model}" if provider else model
 
     async def chat(self, messages: List[Dict[str, str]], tools: List[Dict[str, Any]] = None) -> Any:
-        kwargs = {"model": self.model_str, "messages": messages}
+        kwargs = {"model": self.model_str, "messages": messages, "max_tokens": 1500}
         if tools:
             kwargs["tools"] = tools
             

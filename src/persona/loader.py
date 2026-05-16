@@ -9,6 +9,7 @@ def load_persona(yaml_path: str | Path) -> str:
     name = data.get('name', 'Assistant')
     core = data.get('core_prompt', '')
     voice = ", ".join(data.get('voice', []))
+    user_info = data.get('user_info', '')
     
     # Flatten style rules for token efficiency
     rules_list = data.get('style_rules', [])
@@ -22,5 +23,7 @@ def load_persona(yaml_path: str | Path) -> str:
         sys_prompt += f"Rules: {rules}. "
     if boundaries:
         sys_prompt += f"Boundaries: {boundaries}."
+    if user_info:
+        sys_prompt += f"User Info: {user_info}."
 
     return sys_prompt.strip()
