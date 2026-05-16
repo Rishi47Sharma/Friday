@@ -1,4 +1,5 @@
 llm:
-  provider: groq
+  provider: gemini
+  model: gemini-2.5-flash
 memory:
   backend: sqlite
