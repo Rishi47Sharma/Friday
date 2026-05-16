@@ -9,9 +9,13 @@ Friday is a model-agnostic, memory-first AI companion inspired by Tony Stark's F
 ## What v0 proved
 
 ✅ **Swappable LLM** — Gemini 2.0 Flash tested at 79 prompt tokens, Groq/Ollama ready via registry
+
 ✅ **Persona engine** — YAML-driven personality, no hardcoding
+
 ✅ **Persistent memory** — SQLite fact-store, <50 tokens injected per turn
+
 ✅ **Tools** — model-agnostic JSON tool calling (web_search + set_reminder)
+
 ✅ **Token budget** — full turn under 300 tokens
 
 Tested: `poetry run python examples/basic_chat.py` remembers name and coffee across restarts.
@@ -73,7 +77,7 @@ poetry run python examples/basic_chat.py
 ```yaml
 llm:
   provider: gemini
-  model: gemini-2.0-flash
+  model: gemini-2.5-flash
 
 memory:
   backend: redis  # was sqlite
